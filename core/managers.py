@@ -40,7 +40,7 @@ class CustomUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email, username, password, **extra_fields):
+    def create_superuser(self, email, username, full_name, password, **extra_fields):
         """
         Create and save a SuperUser with the given email and password.
         """
@@ -58,4 +58,5 @@ class CustomUserManager(BaseUserManager):
             self.email_validator(email)
         else:
             raise ValueError("Email address is required")
-        return self.create_user(email, username, password, **extra_fields)
+        
+        return self.create_user(email, username, password, full_name, **extra_fields)
