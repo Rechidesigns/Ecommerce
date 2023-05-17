@@ -11,7 +11,7 @@ from rest_framework.exceptions import ValidationError
 
 from common.models import BaseModel
 from core.models import Customer, Seller
-from store.choices import RATING_CHOICES
+from store.choices import PAYMENT_PENDING, PAYMENT_STATUS, RATING_CHOICES, SHIPPING_STATUS_CHOICES, SHIPPING_STATUS_PENDING
 from store.validators import validate_image_size
 
 
@@ -215,6 +215,7 @@ class ColourInventory(models.Model):
 
 
 class SizeInventory(models.Model):
+    
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE,
         related_name="size_inventory",
@@ -250,6 +251,7 @@ class SizeInventory(models.Model):
 
 
 class ProductImage(models.Model):
+    
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE,
         related_name="images",
@@ -313,6 +315,7 @@ class ProductReviewImage(models.Model):
         verbose_name= _("Product Review Image"),
         help_text= _(" This holds the product the image belongs to")
         )
+    
     _image = models.ImageField(
         upload_to="store/product_reviews", 
         validators=[validate_image_size],
@@ -328,10 +331,30 @@ class ProductReviewImage(models.Model):
 
 
 class CouponCode(BaseModel):
-    code = models.CharField(max_length=8, unique=True, editable=False)
-    price = models.DecimalField(max_digits=6, decimal_places=2)
-    expired = models.BooleanField(default=False)
-    expiry_date = models.DateTimeField()  #
+    
+    code = models.CharField(
+        max_length=8, unique=True, 
+        editable=False,
+        verbose_name= _("Code"),
+        help_text= _(" This holds the Coupon code of the product")
+        )
+    
+    price = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        verbose_name= _("Price"),
+        help_text= _(" This holds the Coupon price of the product")
+        )
+    
+    expired = models.BooleanField(
+        default =False,
+        verbose_name= _("Expired"),
+        help_text= _("This holds the code action if active or not")
+        )
+    
+    expiry_date = models.DateTimeField(
+        verbose_name= _("Expiry Date"),
+        help_text= _(" This holds the expiry date of the code")
+        )
 
     def __str__(self):
         return self.code
@@ -347,3 +370,98 @@ class CouponCode(BaseModel):
         if self.expiry_date < timezone.now():
             raise ValidationError('Expiry date must be in the future.')
         super().save(*args, **kwargs)
+
+
+# class Order(BaseModel):
+    
+#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="orders")
+#     transaction_ref = models.CharField(max_length=32, unique=True)
+#     placed_at = models.DateTimeField(auto_now_add=True)
+#     total_price = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+#     address = models.ForeignKey('Address', on_delete=models.SET_NULL, blank=True, null=True,
+#                                 related_name="orders_address")
+#     payment_status = models.CharField(max_length=2, choices=PAYMENT_STATUS, default=PAYMENT_PENDING)
+#     shipping_status = models.CharField(max_length=2, choices=SHIPPING_STATUS_CHOICES, default=SHIPPING_STATUS_PENDING)
+
+#     def __str__(self):
+#         return f"{self.transaction_ref} --- {self.placed_at}"
+
+
+# class OrderItem(BaseModel):
+#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="order_items", null=True)
+#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="orderitems")
+#     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+#     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
+#     size = models.CharField(max_length=20, null=True)
+#     colour = models.CharField(max_length=20, null=True)
+#     ordered = models.BooleanField(default=False)
+
+#     def __str__(self):
+#         return (
+#             f"{self.order.transaction_ref} --- {self.product.title} --- {self.quantity}"
+#         )
+
+
+# class Cart(BaseModel):
+#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="carts")
+
+#     @property
+#     def total_price(self):
+#         cart_total = sum([item.total_price for item in self.items.all()])
+#         return cart_total
+
+
+# class CartItem(BaseModel):
+#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+#     size = models.CharField(max_length=20, null=True)
+#     colour = models.CharField(max_length=20, null=True)
+#     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+#     extra_price = models.DecimalField(max_digits=6, decimal_places=2, null=True)
+
+#     @property
+#     def total_price(self):
+#         extra_price = self.extra_price
+#         if float(self.product.discount_price) > 0:
+#             return self.quantity * (self.product.discount_price + self.product.shipping_fee + extra_price)
+#         return self.quantity * (self.product.price + self.product.shipping_fee + extra_price)
+
+#     def __str__(self):
+#         return f"Cart id({self.cart.id}) ---- {self.product.title} ---- {self.quantity}"
+
+
+# class Country(BaseModel):
+#     name = models.CharField(max_length=255)
+#     code = models.CharField(max_length=10)
+
+#     class Meta:
+#         verbose_name_plural = "Countries"
+
+#     def __str__(self):
+#         return f"{self.name} -- {self.code}"
+
+
+# class Address(BaseModel):
+#     customer = models.ForeignKey(
+#             Customer, on_delete=models.CASCADE, related_name="addresses"
+#     )
+#     country = models.ForeignKey(Country, on_delete=models.CASCADE)
+#     first_name = models.CharField(max_length=255)
+#     last_name = models.CharField(max_length=255)
+#     street_address = models.CharField(max_length=255)
+#     second_street_address = models.CharField(max_length=255, blank=True, null=True)
+#     city = models.CharField(max_length=255)
+#     state = models.CharField(max_length=255)
+#     zip_code = models.CharField(max_length=10)
+#     phone_number = models.CharField(max_length=20, validators=[validate_phone_number])
+
+#     class Meta:
+#         verbose_name_plural = "Addresses"
+
+#     def __str__(self):
+#         return f"{self.customer.full_name}"
+
+
+
+
