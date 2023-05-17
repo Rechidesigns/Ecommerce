@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.auth.base_user import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -31,11 +30,8 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError("Email address is required")
         email = self.normalize_email(email)
-        GlobalUserModel = apps.get_model(
-                self.model._meta.app_label, self.model._meta.object_name
-        )
-        username = GlobalUserModel.normalize_username(username)
-        user = self.model(email=email, username=username, full_name=full_name, **extra_fields)
+
+        user = self.model(username=username, email=email, full_name=full_name, **extra_fields)
         user.set_password(password)
         user.save()
         return user
@@ -58,5 +54,5 @@ class CustomUserManager(BaseUserManager):
             self.email_validator(email)
         else:
             raise ValueError("Email address is required")
-        
-        return self.create_user(email, username, password, full_name, **extra_fields)
+
+        return self.create_user(email=email, username=username, full_name=full_name, password=password, **extra_fields)

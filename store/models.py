@@ -11,6 +11,7 @@ from rest_framework.exceptions import ValidationError
 
 from common.models import BaseModel
 from core.models import Customer, Seller
+from core.validators import validate_phone_number
 from store.choices import PAYMENT_PENDING, PAYMENT_STATUS, RATING_CHOICES, SHIPPING_STATUS_CHOICES, SHIPPING_STATUS_PENDING
 from store.validators import validate_image_size
 
@@ -49,7 +50,12 @@ class Colour(BaseModel):
         help_text = _("This holds the name of the colour")
         )
     
-    hex_code = models.CharField(max_length=20, unique=True)
+    hex_code = models.CharField(
+        max_length=20, 
+        unique=True,
+        verbose_name = _("Hex Code"),
+        help_text = _("This holds the hex color code of the colour name")
+        )
 
     def __str__(self):
         return f"{self.name} ---- {self.hex_code}"
@@ -372,96 +378,267 @@ class CouponCode(BaseModel):
         super().save(*args, **kwargs)
 
 
-# class Order(BaseModel):
+class Order(BaseModel):
     
-#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="orders")
-#     transaction_ref = models.CharField(max_length=32, unique=True)
-#     placed_at = models.DateTimeField(auto_now_add=True)
-#     total_price = models.DecimalField(max_digits=6, decimal_places=2, null=True)
-#     address = models.ForeignKey('Address', on_delete=models.SET_NULL, blank=True, null=True,
-#                                 related_name="orders_address")
-#     payment_status = models.CharField(max_length=2, choices=PAYMENT_STATUS, default=PAYMENT_PENDING)
-#     shipping_status = models.CharField(max_length=2, choices=SHIPPING_STATUS_CHOICES, default=SHIPPING_STATUS_PENDING)
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, 
+        null=True, related_name="orders",
+        verbose_name = _("Customer Order"),
+        help_text = _("This holds the CUSTOMER's order details")
+        )
+    
+    transaction_ref = models.CharField(
+        max_length=32, unique=True,
+        verbose_name = _("Transaction Reference"),
+        help_text = _("This holds the Transaction reference number of the order placed by the customer")
+        )
+    
+    placed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name = _("Placed At"),
+        help_text = _("This holds the time and date that the customer placed the order") 
+        )
+    
+    total_price = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        null=True,
+        verbose_name = _("Total Price"),
+        help_text = _("This holds the total price of the products orderd by the customer")
+        )
+    
+    address = models.ForeignKey('Address',
+        on_delete=models.SET_NULL, 
+        blank=True, null=True,
+        related_name="orders_address",
+        verbose_name = _("Order Address"),
+        help_text = _("This holds the address of the customer that placed the order")
+        )
+    
+    payment_status = models.CharField(
+        max_length=2, choices=PAYMENT_STATUS,
+        default=PAYMENT_PENDING,
+        verbose_name = _("Payment Status"),
+        help_text = _("This holds the status of the payment of the order")
+        )
+    
+    shipping_status = models.CharField(
+        max_length=2, choices=SHIPPING_STATUS_CHOICES, 
+        default=SHIPPING_STATUS_PENDING,
+        verbose_name = _("Shipping Status"),
+        help_text = _("This holds the Shipping status of the order placed by the customer")
+        )
 
-#     def __str__(self):
-#         return f"{self.transaction_ref} --- {self.placed_at}"
-
-
-# class OrderItem(BaseModel):
-#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="order_items", null=True)
-#     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="orderitems")
-#     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
-#     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-#     size = models.CharField(max_length=20, null=True)
-#     colour = models.CharField(max_length=20, null=True)
-#     ordered = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return (
-#             f"{self.order.transaction_ref} --- {self.product.title} --- {self.quantity}"
-#         )
-
-
-# class Cart(BaseModel):
-#     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, related_name="carts")
-
-#     @property
-#     def total_price(self):
-#         cart_total = sum([item.total_price for item in self.items.all()])
-#         return cart_total
-
-
-# class CartItem(BaseModel):
-#     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
-#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-#     size = models.CharField(max_length=20, null=True)
-#     colour = models.CharField(max_length=20, null=True)
-#     quantity = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
-#     extra_price = models.DecimalField(max_digits=6, decimal_places=2, null=True)
-
-#     @property
-#     def total_price(self):
-#         extra_price = self.extra_price
-#         if float(self.product.discount_price) > 0:
-#             return self.quantity * (self.product.discount_price + self.product.shipping_fee + extra_price)
-#         return self.quantity * (self.product.price + self.product.shipping_fee + extra_price)
-
-#     def __str__(self):
-#         return f"Cart id({self.cart.id}) ---- {self.product.title} ---- {self.quantity}"
+    def __str__(self):
+        return f"{self.transaction_ref} --- {self.placed_at}"
 
 
-# class Country(BaseModel):
-#     name = models.CharField(max_length=255)
-#     code = models.CharField(max_length=10)
+class OrderItem(BaseModel):
+    
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, 
+        related_name="order_items", null=True,
+        verbose_name = _("Customer"),
+        help_text = _("This holds the the details of the customer that placed the order item")
+        )
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, 
+        related_name="items",
+        verbose_name = _("Orders"),
+        help_text = _("This holds the the details of the order that was placed")
+        )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE,
+        related_name="orderitems",
+        verbose_name = _("Product Details"),
+        help_text = _("This holds the details of the product that was ordered")
+        )
+    
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name = _("Quantity"),
+        help_text = _("This holds the quantity of the order item that was placed")
+        )
+    
+    unit_price = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        verbose_name = _("Unit Price"),
+        help_text = _("This holds the unit price of the order item that was placed")
+        )
+    
+    size = models.CharField(
+        max_length=20, null=True,
+        verbose_name = _("Size"),
+        help_text = _("This holds the size of the item that was orderd")
+        )
+    
+    colour = models.CharField(
+        max_length=20, null=True,
+        verbose_name = _("Colour"),
+        help_text = _("This holds the name of the colour")
+        )
+    ordered = models.BooleanField(
+        default=False,
+        verbose_name = _("Orderd"),
+        help_text = _("This holds the action of the the order that was placed")
+        )
 
-#     class Meta:
-#         verbose_name_plural = "Countries"
-
-#     def __str__(self):
-#         return f"{self.name} -- {self.code}"
-
-
-# class Address(BaseModel):
-#     customer = models.ForeignKey(
-#             Customer, on_delete=models.CASCADE, related_name="addresses"
-#     )
-#     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-#     first_name = models.CharField(max_length=255)
-#     last_name = models.CharField(max_length=255)
-#     street_address = models.CharField(max_length=255)
-#     second_street_address = models.CharField(max_length=255, blank=True, null=True)
-#     city = models.CharField(max_length=255)
-#     state = models.CharField(max_length=255)
-#     zip_code = models.CharField(max_length=10)
-#     phone_number = models.CharField(max_length=20, validators=[validate_phone_number])
-
-#     class Meta:
-#         verbose_name_plural = "Addresses"
-
-#     def __str__(self):
-#         return f"{self.customer.full_name}"
+    def __str__(self):
+        return (
+            f"{self.order.transaction_ref} --- {self.product.title} --- {self.quantity}"
+        )
 
 
+class Cart(BaseModel):
+    
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE,
+        null=True, related_name="carts",
+        verbose_name = _("Customer Detail"),
+        help_text = _("This holds the cutomer details that owns the cart"))
+
+    @property
+    def total_price(self):
+        cart_total = sum([item.total_price for item in self.items.all()])
+        return cart_total
 
 
+class CartItem(BaseModel):
+    cart = models.ForeignKey(
+        Cart, on_delete=models.CASCADE, 
+        related_name="items",
+        verbose_name = _("Cart Item"),
+        help_text = _("This holds the the cart item details")
+        )
+    
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE,
+        verbose_name = _("Product Details"),
+        help_text = _("This holds the details of the product in the cart")
+        )
+    
+    size = models.CharField(
+        max_length=20, null=True,
+        verbose_name = _("Size"),
+        help_text = _("This holds the size of the product or item in the cart")
+        )
+    
+    colour = models.CharField(
+        max_length=20, null=True,
+        verbose_name = _("Colour Name"),
+        help_text = _("This holds the name of the colour")
+        )
+    
+    quantity = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name = _("Colour Name"),
+        help_text = _("This holds the name of the colour")
+        )
+    
+    extra_price = models.DecimalField(
+        max_digits=6, decimal_places=2, null=True,
+        verbose_name = _("Extra Price"),
+        help_text = _("This holds the extra price of the cart item")
+        )
+
+    @property
+    def total_price(self):
+        extra_price = self.extra_price
+        if float(self.product.discount_price) > 0:
+            return self.quantity * (
+                self.product.discount_price + self.product.shipping_fee + extra_price
+                )
+        return self.quantity * (self.product.price + self.product.shipping_fee + extra_price)
+
+    def __str__(self):
+        return f"Cart id({self.cart.id}) ---- {self.product.title} ---- {self.quantity}"
+
+
+class Country(BaseModel):
+    
+    name = models.CharField(
+        max_length=255,
+        verbose_name = _("Country Name"),
+        help_text = _("This holds the name of the Country")
+        )
+    
+    code = models.CharField(
+        max_length=10,
+        verbose_name = _("Code"),
+        help_text = _("This holds the county code")
+        )
+
+    class Meta:
+        verbose_name_plural = "Countries"
+
+    def __str__(self):
+        return f"{self.name} -- {self.code}"
+
+
+class Address(BaseModel):
+    
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, 
+        related_name="addresses",
+        verbose_name = _("Customer"),
+        help_text = _("This holds the customer details")
+    )
+    
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE,
+        verbose_name = _("Country"),
+        help_text = _("This holds the country details the customer address")
+        )
+    
+    first_name = models.CharField(
+        max_length=255,
+        verbose_name = _("First Name"),
+        help_text = _("This holds the first name of the customer")
+        )
+    
+    last_name = models.CharField(
+        max_length=255,
+        verbose_name = _("Last Name"),
+        help_text = _("This holds the name of the customer")
+        )
+    
+    street_address = models.CharField(
+        max_length=255,
+        verbose_name = _("Street Address"),
+        help_text = _("This holds the street aaddress of the customer")
+        )
+    
+    second_street_address = models.CharField(
+        max_length=255, blank=True, null=True,
+        verbose_name = _("Second Street Address"),
+        help_text = _("This holds the name of the second address of the customer")
+        )
+    
+    city = models.CharField(
+        max_length=255,
+        verbose_name = _("City"),
+        help_text = _("This holds the name of the city of the customer")
+        )
+    
+    state = models.CharField(
+        max_length=255,
+        verbose_name = _("State"),
+        help_text = _("This holds the name of the State of the customer")
+        )
+    
+    zip_code = models.CharField(
+        max_length=10,
+        verbose_name = _("Zip Code"),
+        help_text = _("This holds the zip code the customers address")
+        )
+    
+    phone_number = models.CharField(
+        max_length=20, validators=[validate_phone_number],
+        verbose_name = _("Phone Number"),
+        help_text = _("This holds the phone number of the customer")
+        )
+
+    class Meta:
+        verbose_name_plural = "Addresses"
+
+    def __str__(self):
+        return f"{self.customer.full_name}"
