@@ -115,7 +115,7 @@ class Product(BaseModel):
         )
     
     price = models.DecimalField(
-        max_digits=6, decimal_places=2, 
+        max_digits=8, decimal_places=2, 
         default=0, 
         verbose_name= _("Price"),
         help_text= _("This holds the price or amount of the product")
@@ -496,6 +496,9 @@ class Cart(BaseModel):
         null=True, related_name="carts",
         verbose_name = _("Customer Detail"),
         help_text = _("This holds the cutomer details that owns the cart"))
+    
+    class Meta:
+        verbose_name_plural = _("Carts")
 
     @property
     def total_price(self):
