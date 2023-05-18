@@ -7,7 +7,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from store.forms import ProductAdminForm
-from store.models import Category, Colour, ColourInventory, CouponCode, Product, ProductImage, Size, SizeInventory
+from store.models import Category, Country, Cart, Colour, ColourInventory, CouponCode, Product, ProductImage, Size, SizeInventory, Order, OrderItem
 
 # Register your models here.
 admin.site.register((Size,))
@@ -74,7 +74,7 @@ class ProductAdmin(admin.ModelAdmin):
     form = ProductAdminForm
     list_display = ("seller_name", "title", "category", "price", "percentage_off", "discount_price",
                     "average_ratings", "inventory", "inventory_status",)
-    list_filter = ("category", "percentage_off", InventoryFilter)
+    list_filter = ("category", "percentage_off", 'InventoryFilter',)
     list_per_page = 30
     list_select_related = ("category",)
     ordering = ("title", "category", "percentage_off",)
@@ -120,3 +120,38 @@ class CouponCodeAdmin(admin.ModelAdmin):
     list_per_page = 20
     ordering = ("code", "expired",)
     search_fields = ("price",)
+
+
+@admin.register( Order )
+class Order (admin.ModelAdmin):
+    list_display = ('customer', 'transaction_ref', 'placed_at', 'total_price', 'address', 'payment_status', 'shipping_status',)
+    list_display_links = ('customer', 'total_price', 'address', )
+
+
+@admin.register( OrderItem )
+class OrderItem (admin.ModelAdmin):
+    list_display = ('customer', 'order', 'product', 'quantity', 'unit_price', 'size', 'colour', 'ordered')
+    list_display_links = ('customer', 'order', 'product', 'unit_price', )
+
+
+@admin.register( Cart )
+class Cart (admin.ModelAdmin):
+    list_display = ('customer', )
+    list_display_links = ('customer', )
+    
+    
+@admin.register( Cart )
+class Cart (admin.ModelAdmin):
+    list_display = ('cart', 'product', 'size', 'colour', 'quantity', 'extra_price', )
+    list_display_links = ('cart', 'product', 'quantity', )
+    
+
+@admin.register( Country )
+class Country (admin.ModelAdmin):
+    list_display = ( "name", "code", )
+    list_display_links = ("name", "code", )
+    
+@admin.register( Country )
+class Country (admin.ModelAdmin):
+    list_display = ( "name", "code", )
+    list_display_links = ("name", "code", )

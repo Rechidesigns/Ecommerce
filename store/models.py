@@ -476,6 +476,7 @@ class OrderItem(BaseModel):
         verbose_name = _("Colour"),
         help_text = _("This holds the name of the colour")
         )
+    
     ordered = models.BooleanField(
         default=False,
         verbose_name = _("Orderd"),
