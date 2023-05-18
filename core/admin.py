@@ -2,7 +2,9 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from core.forms import CustomUserChangeForm, CustomUserCreationForm
-from core.models import User
+from core.models import Customer, Seller, User
+
+admin.site.register([Customer, Seller])
 
 
 class CustomUserAdmin(UserAdmin):
@@ -10,7 +12,6 @@ class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
     model = User
     list_display = (
-        "username",
         "email",
         "full_name",
         "country",
@@ -20,7 +21,6 @@ class CustomUserAdmin(UserAdmin):
         "email_changed",
     )
     list_filter = (
-        "username",
         "email",
         "full_name",
         "is_staff",
@@ -31,7 +31,6 @@ class CustomUserAdmin(UserAdmin):
             "Personal Information",
             {
                 "fields": (
-                    "username",
                     "email",
                     "full_name",
                     "password",
@@ -41,6 +40,7 @@ class CustomUserAdmin(UserAdmin):
                     "_profile_picture",
                     "email_changed",
                     "is_verified",
+                    "is_customer",
                 )
             },
         ),
@@ -55,7 +55,6 @@ class CustomUserAdmin(UserAdmin):
             {
                 "classes": ("wide",),
                 "fields": (
-                    "username",
                     "email",
                     "full_name",
                     "phone_number",
@@ -65,6 +64,7 @@ class CustomUserAdmin(UserAdmin):
                     "password2",
                     "is_staff",
                     "is_active",
+                    "is_customer",
                     "groups",
                     "user_permissions",
                 ),
@@ -73,9 +73,8 @@ class CustomUserAdmin(UserAdmin):
     )
     search_fields = (
         "email",
-        "username",
     )
-    ordering = ("username",)
+    ordering = ("email",)
 
 
 admin.site.register(User, CustomUserAdmin)

@@ -218,17 +218,17 @@ EMAIL_BACKEND = (
 
 # Gmail settings for development
 # EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
+#
 # EMAIL_USE_SSL = True
-
+#
 # EMAIL_HOST = "smtp.gmail.com"
-
+#
 # EMAIL_HOST_USER = "<email_address>"
-
+#
 # EMAIL_HOST_PASSWORD = "<email_address_app_password>"
-
+#
 # EMAIL_PORT = 465
-
+#
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # JAZZMIN

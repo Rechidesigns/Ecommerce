@@ -21,6 +21,7 @@ def upload_path(instance, filename):
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False, unique=True)
+    username = None
     full_name = models.CharField(max_length=255, validators=[validate_full_name])
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=20, validators=[validate_phone_number])
@@ -29,9 +30,10 @@ class User(AbstractUser):
     _profile_picture = models.ImageField(upload_to=upload_path)
     email_changed = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=True)
 
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email", "full_name"]
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["full_name"]
 
     objects = CustomUserManager()
 
@@ -40,7 +42,7 @@ class User(AbstractUser):
         verbose_name_plural = "Users"
 
     def __str__(self):
-        return self.username
+        return self.email
 
     @property
     def profile_picture(self):
@@ -52,14 +54,19 @@ class User(AbstractUser):
 class Seller(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="seller")
     company_name = models.CharField(max_length=255)
-    ratings = models.IntegerField()
+    ratings = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f"{self.user.full_name} -- User {self.user.email}"
 
 
 class Customer(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="customer")
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=1)
-    birthday = models.DateField(null=True)
+
+    def __str__(self):
+        return f"{self.user.full_name} -- User {self.user.email}"
 
 
 class Otp(BaseModel):
