@@ -327,13 +327,13 @@ EMAIL_BACKEND = (
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": " Recuity Estate Project Admin",
+    "site_title": " Ecommerce Project Admin",
 
     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Welcome to Recuity Estate Project",
+    "site_header": "Welcome to Ecommerce API Project",
 
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand":  " Recuity Estate Project",
+    "site_brand":  " Ecommerce Project",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
     "site_logo": "",
