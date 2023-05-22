@@ -12,7 +12,7 @@ from rest_framework.exceptions import ValidationError
 from common.models import BaseModel
 from core.models import Customer, Seller
 from core.validators import validate_phone_number
-from store.choices import PAYMENT_PENDING, PAYMENT_STATUS, RATING_CHOICES, SHIPPING_STATUS_CHOICES, SHIPPING_STATUS_PENDING
+from store.api.choices import PAYMENT_PENDING, PAYMENT_STATUS, RATING_CHOICES, SHIPPING_STATUS_CHOICES, SHIPPING_STATUS_PENDING
 from store.validators import validate_image_size
 
 

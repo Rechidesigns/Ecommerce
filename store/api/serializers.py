@@ -46,7 +46,7 @@ class ColourInventorySerializer(serializers.ModelSerializer):
         fields = ['product', 'colour', 'quantity', 'extra_price', ]
         
 
-class SizeInventorySerializer(serializers.Modelserializer):
+class SizeInventorySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = SizeInventory

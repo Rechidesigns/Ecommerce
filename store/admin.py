@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from store.forms import ProductAdminForm
+from store.api.forms import ProductAdminForm
 from store.models import Category, CartItem, Address, Country, Cart, Colour, ColourInventory, CouponCode, Product, ProductImage, Size, SizeInventory, Order, OrderItem
 
 # Register your models here.
