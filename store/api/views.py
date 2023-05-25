@@ -18,7 +18,7 @@ from store.api.serializers import (ProductSerializer, CategorySerializer, SizeSe
 class CategoryView( ListCreateAPIView ):
     
     serializer_class = CategorySerializer
-    permission_classes = [ IsAuthenticated, ]
+    # permission_classes = [ IsAuthenticated, ]
     
     def post (self, request, *args, **kwargs):
         
@@ -37,22 +37,23 @@ class CategoryView( ListCreateAPIView ):
         return Response( {'status':'successful', 'message':'All categories has been fetched','data':serializer.data } , status=status.HTTP_200_OK )
     
 
-class ProductView ( ListCreateAPIView ):
+
+class ProductView(ListCreateAPIView):
     
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated,]
-    
+    # permission_classes = [IsAuthenticated,]
+
     def post (self, request, *args, **kwargs):
         
-        serializer = ProductSerializer(data = request.data)
+        serializer = self.serializer_class( data = request.data )
         if serializer.is_valid():
-            serializer.save( )
+            serializer.save()
             
-            return Response( {'status':'successful', 'message':'Product has been added successful','data':serializer.data} , status = status.HTTP_201_CREATED)
-        
+            return Response( {'status':'successful', 'message':'Product has been added successful','data':serializer.data} , status = status.HTTP_201_CREATED )
+
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-    
-                          
+
+
     def get ( self, request, *args, **kwargs):
         
         qs = Product.objects.all( )
@@ -65,7 +66,7 @@ class ProductView ( ListCreateAPIView ):
 class ProductDetalView ( RetrieveUpdateDestroyAPIView ):
     
     serializer_class = ProductSerializer
-    permission_classes = [ IsAuthenticated ]
+    # permission_classes = [ IsAuthenticated ]
     
     def get_object(self, product_id):
         

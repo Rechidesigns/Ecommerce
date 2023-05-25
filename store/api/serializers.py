@@ -10,7 +10,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        filds = ['seller', 'title', 'slug', 'category', 
+        fields = ['seller', 'title', 'slug', 'products', 
                  'style', 'price', 'shipping_out_days', 
                  'shipping_fee', 'inventory', 'percentage_off', 
                  'flash_sale_start_date', 'flash_sale_end_date',
@@ -18,11 +18,11 @@ class ProductSerializer(serializers.ModelSerializer):
         
         
 class CategorySerializer(serializers.ModelSerializer):
-    product =  ProductSerializer ( many=True, read_only=True )
+    # product =  ProductSerializer ( many=True )
     
     class Meta:
         model = Category
-        fields = ['name','product',]
+        fields = ['name',]
         
         
 class SizeSerializer(serializers.ModelSerializer):
